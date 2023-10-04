@@ -89,9 +89,9 @@ class NeuralODE(ODEProblem, pl.LightningModule):
                 module._control = x[:, excess_dims:].detach()
         return x, t_span
 
-    def forward(self, x:Union[Tensor, Dict], t_span:Tensor=None, save_at:Iterable=(), args={}):
+    def forward(self, x:Union[Tensor, Dict], t_span:Tensor=None, save_at:Iterable=(), *args, **kwargs):
         x, t_span = self._prep_integration(x, t_span)
-        t_eval, sol =  super().forward(x, t_span, save_at, args)
+        t_eval, sol =  super().forward(x, t_span, save_at, *args, **kwargs)
         if self.return_t_eval: return t_eval, sol
         else: return sol
 

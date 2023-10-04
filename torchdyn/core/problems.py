@@ -76,17 +76,17 @@ class ODEProblem(nn.Module):
                                                             self.solver_adjoint, self.atol_adjoint, self.rtol_adjoint, self.integral_loss,
                                                             problem_type='standard').apply
 
-    def odeint(self, x:Tensor, t_span:Tensor, save_at:Tensor=(), args={}):
+    def odeint(self, x:Tensor, t_span:Tensor, save_at:Tensor=(), *args, **kwargs):
         "Returns Tuple(`t_eval`, `solution`)"
         if self.sensalg == 'autograd':
             return odeint(self.vf, x, t_span, self.solver, self.atol, self.rtol, interpolator=self.interpolator,
-                          save_at=save_at, args=args)
+                          save_at=save_at, *args, **kwargs)
         else:
-            return self._autograd_func()(self.vf_params, x, t_span, save_at, args)
+            return self._autograd_func()(self.vf_params, x, t_span, save_at, *args, **kwargs)
 
-    def forward(self, x:Tensor, t_span:Tensor, save_at:Tensor=(), args={}):
+    def forward(self, x:Tensor, t_span:Tensor, save_at:Tensor=(), *args, **kwargs):
         "For safety redirects to intended method `odeint`"
-        return self.odeint(x, t_span, save_at, args)
+        return self.odeint(x, t_span, save_at, *args, **kwargs)
 
 
 class MultipleShootingProblem(ODEProblem):
