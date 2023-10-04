@@ -324,7 +324,7 @@ def test_subclass():
             super().__init__()
             self.model = model
 
-        def forward(self, x, t):
+        def forward(self, t, x):
             return self.model(x)
 
     g = torch.nn.Sequential(
