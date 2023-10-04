@@ -14,7 +14,7 @@ import torch
 from torchdyn.core import NeuralODE
 
 
-def test_integration(problem, sensitivity, solver):
+def test_integration():
     """Test load and save problems with adjoint sensitivity methods"""
     f = torch.nn.Sequential(
         torch.nn.Linear(1, 16), torch.nn.Tanh(), torch.nn.Linear(16, 1)
