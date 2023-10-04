@@ -20,6 +20,6 @@ def test_integration():
         torch.nn.Linear(1, 16), torch.nn.Tanh(), torch.nn.Linear(16, 1)
     )
     node = NeuralODE(f)
-    x = torch.zeros(5)
+    x = torch.zeros(5, 1)
     t_span = torch.linspace(0, 1, 11)
     _ = node(x, t_span)
