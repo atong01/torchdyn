@@ -316,3 +316,22 @@ def test_odeint(solver):
     sys = Lorenz()
 
     odeint(sys, x0, t_span, solver=solver)
+
+
+def test_subclass():
+    class model(torch.nn.Module):
+        def __init__(self, model):
+            super().__init__()
+            self.model = model
+
+        def forward(self, x, t):
+            return self.model(x)
+
+    g = torch.nn.Sequential(
+        torch.nn.Linear(1, 16), torch.nn.Tanh(), torch.nn.Linear(16, 1)
+    )
+    f = model(g)
+    node = NeuralODE(f)
+    x = torch.zeros(5, 1)
+    t_span = torch.linspace(0, 1, 11)
+    _ = node(x, t_span)
