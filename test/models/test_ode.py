@@ -318,15 +318,39 @@ def test_odeint(solver):
     odeint(sys, x0, t_span, solver=solver)
 
 
-def test_subclass():
-    class model(torch.nn.Module):
-        def __init__(self, model):
-            super().__init__()
-            self.model = model
+class time_dependent_model(torch.nn.Module):
+    def __init__(self, model):
+        super().__init__()
+        self.model = model
 
-        def forward(self, t, x):
-            return self.model(x)
+    def forward(self, t, x):
+        return self.model(x)
 
+
+class time_independent_model(time_dependent_model):
+    def forward(self, x):
+        return self.model(x)
+
+
+class time_dependent_model_with_args(time_dependent_model):
+    def forward(self, t, x, *args, **kwargs):
+        return self.model(x)
+
+
+class time_independent_model_with_args(time_dependent_model):
+    def forward(self, x, *args, **kwargs):
+        return self.model(x)
+
+
+@pytest.mark.parametrize('model', [
+    time_dependent_model,
+    time_independent_model,
+    time_independent_model_with_args,
+    time_dependent_model_with_args
+])
+@pytest.mark.parametrize('args', [[], [0]])
+@pytest.mark.parametrize('kwargs', [{}, {"test": 1}])
+def test_subclass(model, args, kwargs):
     g = torch.nn.Sequential(
         torch.nn.Linear(1, 16), torch.nn.Tanh(), torch.nn.Linear(16, 1)
     )
@@ -334,4 +358,4 @@ def test_subclass():
     node = NeuralODE(f)
     x = torch.zeros(5, 1)
     t_span = torch.linspace(0, 1, 11)
-    _ = node(x, t_span)
+    _ = node(x, t_span, *args, **kwargs)
