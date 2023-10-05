@@ -358,4 +358,4 @@ def test_subclass(model, args, kwargs):
     node = NeuralODE(f)
     x = torch.zeros(5, 1)
     t_span = torch.linspace(0, 1, 11)
-    _ = node(x, t_span, *args, **kwargs)
+    _ = node(x, t_span, save_at=(), *args, **kwargs)
