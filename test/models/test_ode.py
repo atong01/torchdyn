@@ -348,9 +348,9 @@ class time_independent_model_with_args(time_dependent_model):
     time_independent_model_with_args,
     time_dependent_model_with_args
 ])
-#@pytest.mark.parametrize('args', [[], [0]])
+@pytest.mark.parametrize('args', [[], ["test"])
 @pytest.mark.parametrize('kwargs', [{}, {"test": 1}])
-def test_subclass(model, kwargs):
+def test_subclass(model, args, kwargs):
     g = torch.nn.Sequential(
         torch.nn.Linear(1, 16), torch.nn.Tanh(), torch.nn.Linear(16, 1)
     )
@@ -358,4 +358,4 @@ def test_subclass(model, kwargs):
     node = NeuralODE(f)
     x = torch.zeros(5, 1)
     t_span = torch.linspace(0, 1, 11)
-    _ = node(x, t_span, save_at=(), **kwargs)
+    _ = node(x, t_span, save_at=(), *args, **kwargs)
