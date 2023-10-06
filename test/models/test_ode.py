@@ -348,7 +348,7 @@ class time_independent_model_with_args(time_dependent_model):
     time_independent_model_with_args,
     time_dependent_model_with_args
 ])
-@pytest.mark.parametrize('args', [[], ["test"])
+@pytest.mark.parametrize('args', [[], ["test"]])
 @pytest.mark.parametrize('kwargs', [{}, {"test": 1}])
 def test_subclass(model, args, kwargs):
     g = torch.nn.Sequential(
