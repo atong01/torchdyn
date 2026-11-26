@@ -18,7 +18,7 @@ ExplicitRKTableau = namedtuple('ExplicitRKTableau', 'c, A, b_sol, b_err')
 
 
 def construct_rk4(dtype):
-    c = torch.tensor([0., 1 / 2, 1 / 2, 1], dtype=dtype)
+    c = torch.tensor([1 / 2, 1 / 2, 1], dtype=dtype)
     a = [
         torch.tensor([1 / 2], dtype=dtype),
         torch.tensor([0., 1 / 2], dtype=dtype),
