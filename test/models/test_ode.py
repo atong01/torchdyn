@@ -24,6 +24,7 @@ from torchdyn.numerics import odeint, odeint_mshooting, Lorenz, Euler
 
 from functools import partial
 import copy
+import math
 
 
 if torch.cuda.is_available():
@@ -316,3 +317,38 @@ def test_odeint(solver):
     sys = Lorenz()
 
     odeint(sys, x0, t_span, solver=solver)
+
+
+# https://github.com/DiffEqML/torchdyn/issues/216
+def test_rk4_nonautonomous():
+    """Test RungeKutta4 stage evaluation times and 4th-order convergence on non-autonomous ODEs"""
+    stage_times = []
+
+    def record_f(t, y):
+        stage_times.append(t.clone())
+        return 4.0 * (t ** 3)
+
+    x0_quad = torch.tensor([0.0], dtype=torch.float64)
+    t_span_quad = torch.tensor([0.3, 0.7], dtype=torch.float64)
+    _, y_quad = odeint(record_f, x0_quad, t_span_quad, solver='rk4')
+
+    expected_stages = torch.tensor([0.3, 0.5, 0.5, 0.7], dtype=torch.float64)
+    assert len(stage_times) == 4
+    assert torch.allclose(torch.stack(stage_times), expected_stages, atol=1e-15, rtol=0.0)
+    # Simpson quadrature in RK4 integrates cubics exactly in a single step: y(0.7) - y(0.3) = 0.7^4 - 0.3^4
+    assert torch.allclose(y_quad[-1], torch.tensor([0.7 ** 4 - 0.3 ** 4], dtype=torch.float64), atol=1e-14, rtol=0.0)
+
+    exact = math.exp(math.sin(2.0))
+
+    def nonauto_f(t, y):
+        return y * torch.cos(t)
+
+    errs = []
+    for n in (16, 32, 64):
+        t_span_conv = torch.linspace(0.0, 2.0, n + 1, dtype=torch.float64)
+        _, y = odeint(nonauto_f, torch.tensor([1.0], dtype=torch.float64), t_span_conv, solver='rk4')
+        errs.append(abs(float(y[-1, 0]) - exact))
+
+    assert errs[-1] < 1e-7
+    assert errs[0] / errs[1] > 15.0
+    assert errs[1] / errs[2] > 15.0
